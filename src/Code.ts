@@ -20,6 +20,5 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   return ContentService.createTextOutput('Hello World');
 }
 
-// Make functions available globally for Google Apps Script
-global.doGet = doGet;
-global.doPost = doPost;
+// Note: In Google Apps Script, functions defined at the top level
+// are automatically exposed globally. No need to explicitly assign them.
