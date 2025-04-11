@@ -1,7 +1,8 @@
 /**
- * LINE Bot for my family
- * Google Apps Script entry point for HTTP requests
+ * BOTのユーザーID - LINE Developers ConsoleのYour user IDから取得
+ * スクリプトプロパティから取得するように改善
  */
+const BOT_USER_ID = PropertiesService.getScriptProperties().getProperty('LINE_BOT_USER_ID') || 'UDEADBEEFDEADBEEFDEADBEEFDEADBEEF';
 
 // LINE Messaging API関連の型定義
 interface LineWebhookEvent {
@@ -21,6 +22,13 @@ interface LineMessage {
   type: string;
   id: string;
   text?: string;
+  mention?: {
+    mentionees?: Array<{
+      index: number;
+      length: number;
+      userId?: string;
+    }>;
+  };
 }
 
 interface LineWebhookRequest {
@@ -39,6 +47,46 @@ interface LineReplyMessage {
 interface LineReplyRequest {
   replyToken: string;
   messages: LineReplyMessage[];
+}
+
+/**
+ * メッセージにBOTへのメンションが含まれているかチェックする
+ * @param message - LINEのメッセージオブジェクト
+ * @returns メンションが含まれているかどうか
+ */
+function checkIfBotIsMentioned(message: LineMessage): boolean {
+  // 1. mentionオブジェクトを使ったチェック（新しいLINE API形式）
+  if (message.mention && message.mention.mentionees) {
+    for (const mentionee of message.mention.mentionees) {
+      if (mentionee.userId === BOT_USER_ID) {
+        return true;
+      }
+    }
+  }
+
+  // 2. テキスト内の@メンションを使ったチェック（古い形式やユーザー入力用）
+  if (message.text) {
+    // @ボット名 または 特定のキーワードでの呼びかけ
+    const botNames = ['@linebot', '@line-bot', '@bot', '@ボット'];
+    for (const name of botNames) {
+      if (message.text.toLowerCase().includes(name.toLowerCase())) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * メッセージからメンション部分を取り除いたテキストを返す
+ * @param text - メッセージテキスト
+ * @returns メンション部分を除いたテキスト
+ */
+function removeAllMentions(text: string): string {
+  // 一般的なLINEでのメンション形式 "@名前 "を削除
+  const mentionRegex = /\s*@\S+\s*/g;
+  return text.replace(mentionRegex, ' ').trim();
 }
 
 /**
@@ -85,12 +133,25 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
       if (event.type === 'message' && event.message && event.replyToken) {
         // テキストメッセージのみ応答
         if (event.message.type === 'text' && event.message.text) {
-          // 受信したテキストをそのまま返信
-          console.log(`Sending reply for message: ${event.message.text} with token: ${event.replyToken}`);
-          replyMessage(event.replyToken, [{
-            type: 'text',
-            text: event.message.text
-          }]);
+          // メンションが含まれているかチェック
+          const isMentionedToBot = checkIfBotIsMentioned(event.message);
+          
+          if (isMentionedToBot) {
+            // メンションされた場合のみ返信
+            console.log(`Bot was mentioned in message: ${event.message.text}`);
+            
+            // メンション部分を除いたテキストを抽出
+            const cleanedText = removeAllMentions(event.message.text);
+            
+            // 受信したテキスト（メンション部分を除く）をそのまま返信
+            console.log(`Sending reply for message: ${cleanedText} with token: ${event.replyToken}`);
+            replyMessage(event.replyToken, [{
+              type: 'text',
+              text: cleanedText.trim() || 'どうしましたか？' // 空文字列の場合のデフォルトメッセージ
+            }]);
+          } else {
+            console.log(`Bot was not mentioned in message, ignoring: ${event.message.text}`);
+          }
         }
       }
     }
