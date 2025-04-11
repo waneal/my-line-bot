@@ -53,22 +53,17 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.Content.TextO
 /**
  * doPost - Handle POST requests from LINE platform
  * @param e - Event object from Google Apps Script
- * @returns {GoogleAppsScript.Content.TextOutput} Response with status
  */
-function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
+function doPost(e: GoogleAppsScript.Events.DoPost) {
   // リクエストデータの詳細をログに記録
   console.log('Received webhook data:', JSON.stringify(e.postData));
   
-  // 検証で200を返すための取り組み
-  if (typeof e.parameter?.replyToken === 'undefined') {
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  // すべてのケースで200 OKを返す（空のreturnで302を防ぐ）
   
-  // リクエストデータがない場合は400エラー
+  // リクエストデータがない場合
   if (!e.postData) {
-    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'No post data' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    console.log('No post data');
+    return;
   }
 
   try {
@@ -78,10 +73,10 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     // パースしたデータをログに記録
     console.log('Parsed webhook data:', JSON.stringify(requestData));
     
-    // イベントがない場合は200で終了（LINEの接続確認など）
+    // イベントがない場合は終了（LINEの接続確認など）
     if (!requestData.events || requestData.events.length === 0) {
-      return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'No events' }))
-        .setMimeType(ContentService.MimeType.JSON);
+      console.log('No events in request');
+      return;
     }
 
     // 各イベントを処理
@@ -99,18 +94,12 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
         }
       }
     }
-
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
+    
+    // 正常終了
+    
   } catch (error: any) {
     // エラーが発生した場合はログに記録
     console.error('Error processing request:', error);
-    return ContentService.createTextOutput(JSON.stringify({ 
-      status: 'error', 
-      message: error?.message || 'Unknown error occurred'
-    }))
-      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
