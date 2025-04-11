@@ -90,10 +90,13 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
       .setMimeType(ContentService.MimeType.JSON);
       
-  } catch (error) {
+  } catch (error: any) {
     // エラーが発生した場合はログに記録
     console.error('Error processing request:', error);
-    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
+    return ContentService.createTextOutput(JSON.stringify({ 
+      status: 'error', 
+      message: error?.message || 'Unknown error occurred'
+    }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -134,7 +137,7 @@ function replyMessage(replyToken: string, messages: LineReplyMessage[]): void {
     if (responseCode < 200 || responseCode >= 300) {
       console.error(`Error sending reply: ${response.getContentText()}`);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending reply:', error);
   }
 }
