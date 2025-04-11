@@ -4,13 +4,14 @@ LINE BOT for my family
 
 ## 概要
 
-Google Apps Script を利用した LINE Bot です。家族向けの便利な機能を提供します。
+Google Apps Script を利用した LINE Bot です。家族向けの便利な機能を提供します。アドラー心理学に基づいた子育てアドバイスを提供する機能を搭載しています。
 
 ## 技術スタック
 
 - Node.js (TypeScript)
 - Google Apps Script
 - clasp (Google Apps Script CLI)
+- Claude API (Anthropic)
 
 ## セットアップ
 
@@ -107,17 +108,50 @@ npm run watch
    - ブラウザでGoogle Apps Scriptエディタを開く (`npx @google/clasp open`)
    - 「プロジェクトの設定」 > 「スクリプトプロパティ」を選択
    - 「スクリプトプロパティを追加」をクリック
-   - 「プロパティ」欄に `LINE_CHANNEL_ACCESS_TOKEN` と入力
-   - 「値」欄にLINE Developers Consoleで発行したチャネルアクセストークンを入力
-   - 同様の手順で `LINE_BOT_USER_ID` プロパティを追加し、LINE Developers ConsoleのYour user IDを入力
+   - 以下のプロパティを設定します：
+     - `LINE_CHANNEL_ACCESS_TOKEN`: LINE Developers Consoleで発行したチャネルアクセストークン
+     - `LINE_BOT_USER_ID`: LINE Developers ConsoleのYour user ID
+     - `CLAUDE_API_KEY`: Anthropicから取得したClaude APIキー
    - 「保存」をクリック
+
+## Claude APIの設定
+
+このLINE Botはアドラー心理学に基づいた子育てアドバイスを提供するため、Claude APIを使用しています。以下の手順でAPIキーを取得してください：
+
+1. [Anthropic](https://www.anthropic.com/)のアカウントを作成
+2. APIキーを取得する（[Anthropic Console](https://console.anthropic.com/)から）
+3. 取得したAPIキーをGoogle Apps Scriptのスクリプトプロパティに`CLAUDE_API_KEY`として設定
+
+## 機能
+
+### 子育てアドバイス
+
+このBotは、アドラー心理学に基づいた子育てアドバイスを提供します。以下の原則に基づいてアドバイスを生成します：
+
+1. 子どもの自立と自己効力感を育むアドバイス
+2. 勇気づけを重視し、叱責ではなく適切な指導
+3. 横の関係（対等な関係）を大切にする
+4. 共感と理解を示しながらも、過保護にならないバランス
+5. 子どもの「目的」を理解する視点
+6. 論理的帰結（自然な結果）を活用した学びの促進
+
+### 使い方
+
+LINE上でボットをメンションして質問をすると、Claude APIを通じてアドラー心理学に基づいた子育てアドバイスが返信されます。
+
+例：
+```
+@ボット 子どもが宿題をやりたがらないときはどうすればいいですか？
+```
 
 ## トラブルシューティング
 
 - **「global is not defined」エラー**: Google Apps Scriptでは、関数はトップレベルで定義するだけで自動的にグローバルスコープになります。明示的な`global.function`割り当ては不要です。
 - **デプロイやpushが成功しない場合**: `--force`オプションを試す（例: `npx @google/clasp push --force`）
 - **アクセス権限のエラー**: Google Apps Scriptのプロジェクト設定やデプロイ設定でアクセス権限を確認してください。
-- **「LINE_BOT_USER_ID is not set in project properties」エラー**: スクリプトプロパティに`LINE_BOT_USER_ID`を設定してください。これはLINE BotのユーザーIDで、LINE Developers ConsoleのYour user IDから取得できます。
+- **「LINE_BOT_USER_ID is not set in project properties」エラー**: スクリプトプロパティに`LINE_BOT_USER_ID`を設定してください。
+- **「CLAUDE_API_KEY is not set in project properties」エラー**: スクリプトプロパティに`CLAUDE_API_KEY`を設定してください。
+- **Claude APIのレスポンスが遅い場合**: Google Apps Scriptの実行時間制限（約6分）に注意してください。非常に長い質問や複雑な質問の場合、タイムアウトする可能性があります。
 
 ## ライセンス
 
