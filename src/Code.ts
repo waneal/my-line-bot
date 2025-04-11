@@ -1,8 +1,8 @@
 /**
  * BOTのユーザーID - LINE Developers ConsoleのYour user IDから取得
- * スクリプトプロパティから取得するように改善
+ * スクリプトプロパティから必須で設定
  */
-const BOT_USER_ID = PropertiesService.getScriptProperties().getProperty('LINE_BOT_USER_ID') || 'UDEADBEEFDEADBEEFDEADBEEFDEADBEEF';
+const BOT_USER_ID = PropertiesService.getScriptProperties().getProperty('LINE_BOT_USER_ID');
 
 // LINE Messaging API関連の型定義
 interface LineWebhookEvent {
@@ -105,6 +105,12 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.Content.TextO
 function doPost(e: GoogleAppsScript.Events.DoPost) {
   // リクエストデータの詳細をログに記録
   console.log('Received webhook data:', JSON.stringify(e.postData));
+  
+  // BOT_USER_IDが設定されているか確認
+  if (!BOT_USER_ID) {
+    console.error('Error: LINE_BOT_USER_ID is not set in project properties');
+    return;
+  }
   
   // すべてのケースで200 OKを返す（空のreturnで302を防ぐ）
   
