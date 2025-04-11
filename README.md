@@ -103,12 +103,21 @@ npm run watch
 2. 「Messaging API設定」タブでWebhook URLを設定（上記で取得したGoogle Apps ScriptのウェブアプリURL）
 3. チャネルアクセストークン（長期）を発行
 4. 応答設定で「webhook」をオンに設定
+5. Google Apps Scriptでスクリプトプロパティの設定（**必須**）:
+   - ブラウザでGoogle Apps Scriptエディタを開く (`npx @google/clasp open`)
+   - 「プロジェクトの設定」 > 「スクリプトプロパティ」を選択
+   - 「スクリプトプロパティを追加」をクリック
+   - 「プロパティ」欄に `LINE_CHANNEL_ACCESS_TOKEN` と入力
+   - 「値」欄にLINE Developers Consoleで発行したチャネルアクセストークンを入力
+   - 同様の手順で `LINE_BOT_USER_ID` プロパティを追加し、LINE Developers ConsoleのYour user IDを入力
+   - 「保存」をクリック
 
 ## トラブルシューティング
 
 - **「global is not defined」エラー**: Google Apps Scriptでは、関数はトップレベルで定義するだけで自動的にグローバルスコープになります。明示的な`global.function`割り当ては不要です。
 - **デプロイやpushが成功しない場合**: `--force`オプションを試す（例: `npx @google/clasp push --force`）
 - **アクセス権限のエラー**: Google Apps Scriptのプロジェクト設定やデプロイ設定でアクセス権限を確認してください。
+- **「LINE_BOT_USER_ID is not set in project properties」エラー**: スクリプトプロパティに`LINE_BOT_USER_ID`を設定してください。これはLINE BotのユーザーIDで、LINE Developers ConsoleのYour user IDから取得できます。
 
 ## ライセンス
 
