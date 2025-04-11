@@ -311,12 +311,6 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
                 text: 'こんにちは！子育てについて質問があればお気軽にどうぞ。'
               }]);
             } else {
-              // 「返信中」のメッセージを送信（オプション）
-              replyMessage(event.replyToken, [{
-                type: 'text',
-                text: '回答を生成中です。少々お待ちください...'
-              }]);
-              
               // Claudeから回答を取得
               const claudeResponse = askClaude(cleanedText);
               
@@ -328,11 +322,11 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
               
               // LINEの制限（1度に送信できるのは最大5メッセージ）に対応
               if (messages.length <= 5) {
-                // 直接全メッセージを送信
-                sendMessage(event.source.userId || '', messages);
+                // replyMessageで直接全メッセージを送信
+                replyMessage(event.replyToken, messages);
               } else {
                 // 最初の5メッセージを送信し、残りがあることを通知
-                sendMessage(event.source.userId || '', [
+                replyMessage(event.replyToken, [
                   ...messages.slice(0, 4),
                   {
                     type: 'text',
