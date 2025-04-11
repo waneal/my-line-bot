@@ -59,8 +59,7 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   // リクエストデータがない場合は400エラー
   if (!e.postData) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'No post data' }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setStatusCode(400);
+      .setMimeType(ContentService.MimeType.JSON);
   }
 
   try {
@@ -95,8 +94,7 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
     // エラーが発生した場合はログに記録
     console.error('Error processing request:', error);
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setStatusCode(500);
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
