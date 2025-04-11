@@ -4,6 +4,12 @@
  */
 const BOT_USER_ID = PropertiesService.getScriptProperties().getProperty('LINE_BOT_USER_ID');
 
+/**
+ * LINEチャンネルアクセストークン - LINE Developers Consoleから取得
+ * スクリプトプロパティから必須で設定
+ */
+const CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_ACCESS_TOKEN');
+
 // LINE Messaging API関連の型定義
 interface LineWebhookEvent {
   type: string;
@@ -109,6 +115,12 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
   // BOT_USER_IDが設定されているか確認
   if (!BOT_USER_ID) {
     console.error('Error: LINE_BOT_USER_ID is not set in project properties');
+    return;
+  }
+  
+  // CHANNEL_ACCESS_TOKENが設定されているか確認
+  if (!CHANNEL_ACCESS_TOKEN) {
+    console.error('Error: LINE_CHANNEL_ACCESS_TOKEN is not set in project properties');
     return;
   }
   
