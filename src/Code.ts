@@ -56,6 +56,15 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.Content.TextO
  * @returns {GoogleAppsScript.Content.TextOutput} Response with status
  */
 function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
+  // リクエストデータの詳細をログに記録
+  console.log('Received webhook data:', JSON.stringify(e.postData));
+  
+  // 検証で200を返すための取り組み
+  if (typeof e.parameter?.replyToken === 'undefined') {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
   // リクエストデータがない場合は400エラー
   if (!e.postData) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'No post data' }))
@@ -65,6 +74,9 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   try {
     // LINE Webhookからのリクエストをパース
     const requestData: LineWebhookRequest = JSON.parse(e.postData.contents);
+    
+    // パースしたデータをログに記録
+    console.log('Parsed webhook data:', JSON.stringify(requestData));
     
     // イベントがない場合は200で終了（LINEの接続確認など）
     if (!requestData.events || requestData.events.length === 0) {
@@ -79,6 +91,7 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
         // テキストメッセージのみ応答
         if (event.message.type === 'text' && event.message.text) {
           // 受信したテキストをそのまま返信
+          console.log(`Sending reply for message: ${event.message.text} with token: ${event.replyToken}`);
           replyMessage(event.replyToken, [{
             type: 'text',
             text: event.message.text
@@ -110,6 +123,8 @@ function replyMessage(replyToken: string, messages: LineReplyMessage[]): void {
   // チャンネルアクセストークンをプロジェクトプロパティから取得
   const channelAccessToken = PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_ACCESS_TOKEN');
   
+  console.log(`Channel access token available: ${channelAccessToken ? 'Yes' : 'No'}`);
+  
   if (!channelAccessToken) {
     console.error('Channel access token is not set in project properties');
     return;
@@ -130,12 +145,23 @@ function replyMessage(replyToken: string, messages: LineReplyMessage[]): void {
     payload: JSON.stringify(payload)
   };
   
+  // ペイロードとオプションをログに記録
+  console.log('Reply payload:', JSON.stringify(payload));
+  console.log('Reply options:', JSON.stringify({
+    method: options.method,
+    contentType: options.contentType,
+    headers: { Authorization: 'Bearer ***' } // トークンを隠す
+  }));
+  
   try {
     const response = UrlFetchApp.fetch(url, options);
     const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    console.log(`Reply API response: code=${responseCode}, body=${responseText}`);
     
     if (responseCode < 200 || responseCode >= 300) {
-      console.error(`Error sending reply: ${response.getContentText()}`);
+      console.error(`Error sending reply: ${responseText}`);
     }
   } catch (error: any) {
     console.error('Error sending reply:', error);
