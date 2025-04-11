@@ -1,0 +1,36 @@
+{
+  "name": "my-line-bot",
+  "version": "1.0.0",
+  "description": "LINE BOT for my family",
+  "main": "dist/Code.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "deploy:dev": "npm run build && cp appsscript.json dist/ && clasp push",
+    "deploy:prod": "npm run build && cp appsscript.json dist/ && clasp push && clasp deploy",
+    "login": "clasp login",
+    "create": "clasp create --title 'My LINE Bot' --type webapp --rootDir dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waneal/my-line-bot.git"
+  },
+  "keywords": [
+    "line",
+    "bot",
+    "google-apps-script"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/waneal/my-line-bot/issues"
+  },
+  "homepage": "https://github.com/waneal/my-line-bot#readme",
+  "devDependencies": {
+    "@google/clasp": "^3.0.3-alpha",
+    "@types/google-apps-script": "^1.0.97",
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.3"
+  }
+}
