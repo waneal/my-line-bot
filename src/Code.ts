@@ -75,6 +75,7 @@ interface ClaudeMessage {
 interface ClaudeRequestBody {
   model: string;
   max_tokens: number;
+  system?: string;
   messages: ClaudeMessage[];
 }
 
@@ -171,8 +172,8 @@ function askClaude(userQuery: string): string {
   const requestBody: ClaudeRequestBody = {
     model: CLAUDE_MODEL,
     max_tokens: 1000,
+    system: systemPrompt,
     messages: [
-      { role: 'system', content: systemPrompt },
       { role: 'user', content: userQuery }
     ]
   };
@@ -183,7 +184,8 @@ function askClaude(userQuery: string): string {
     contentType: 'application/json',
     headers: {
       'x-api-key': CLAUDE_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json'
     },
     payload: JSON.stringify(requestBody),
     muteHttpExceptions: true
